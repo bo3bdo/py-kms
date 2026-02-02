@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import struct
 import binascii
 import datetime
 import random
@@ -241,6 +242,17 @@ def client_create():
                 except socket.error as e:
                         pretty_printer(log_obj = loggerclt.error, to_exit = True, where = "clt",
                                        put_text = "{reverse}{red}{bold}While receiving: %s{end}" %str(e))
+
+                if not response or len(response) < 10:
+                        pretty_printer(log_obj = loggerclt.error, to_exit = True, where = "clt",
+                                       put_text = "{reverse}{red}{bold}Empty or incomplete response from server (check server logs).{end}")
+                # RPC response: frag_len at offset 8 (2 bytes, little-endian) gives total packet size
+                frag_len = struct.unpack('<H', response[8:10])[0]
+                while len(response) < frag_len:
+                        chunk = s.recv(min(4096, frag_len - len(response)))
+                        if not chunk:
+                                break
+                        response = response + chunk
 
                 loggerclt.debug("Response: \n%s\n" % justify(deco(binascii.b2a_hex(response), 'latin-1')))
                 parsed = MSRPCRespHeader(response)
