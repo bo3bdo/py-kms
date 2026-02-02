@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "py-kms"
+# Keep in sync with py-kms/pykms_version.py
+version = "2020.07.01"
+description = "KMS Server Emulator written in Python — activates Windows and Office volume licenses."
+readme = "README.md"
+license = { text = "Unlicense" }
+requires-python = ">=3.8"
+authors = [
+    { name = "Matteo ℱan", email = "SystemRage@protonmail.com" }
+]
+keywords = ["kms", "windows", "office", "activation", "volume-license"]
+classifiers = [
+    "License :: Public Domain",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = []
+
+[project.optional-dependencies]
+tz = ["tzlocal>=2.0.0"]
+dev = ["black>=24.0", "ruff>=0.1.0", "pytest>=7.0"]
+
+[tool.black]
+line-length = 120
+target-version = ["py38"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  \.git
+  | \.hg
+  | __pycache__
+)/
+'''
+
+[tool.ruff]
+line-length = 120
+target-version = "py38"
+select = ["E", "F", "I", "N", "W"]
+ignore = ["E501"]
+exclude = [".git", "__pycache__", ".cursor"]

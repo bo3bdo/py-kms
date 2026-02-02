@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""KMS request/response logic and base structures."""
+from __future__ import annotations
 
 import binascii
 import logging
@@ -27,7 +29,9 @@ class UUID(Structure):
                 return uuid.UUID(bytes_le = enco(str(self), 'latin-1'))
 
 class kmsBase:
-        def __init__(self, data, srv_config):
+        """Base for KMS request handling; holds request/response structures and server logic."""
+
+        def __init__(self, data: bytes | None, srv_config: dict) -> None:
                 self.data = data
                 self.srv_config = srv_config
                 
@@ -108,7 +112,7 @@ class kmsBase:
 
         def serverLogic(self, kmsRequest):
                 if self.srv_config['sqlite'] and self.srv_config['dbSupport']:
-                        self.dbName = sql_initialize()
+                        self.dbName = sql_initialize(self.srv_config.get('sqlitedb', 'clients.db'))
 
                 pretty_printer(num_text = 15, where = "srv")
                 kmsRequest = byterize(kmsRequest)
@@ -243,7 +247,8 @@ could be detected as not genuine !{end}" %currentClientCount)
 
 import pykms_RequestV4, pykms_RequestV5, pykms_RequestV6, pykms_RequestUnknown
 
-def generateKmsResponseData(data, srv_config):
+def generateKmsResponseData(data: bytes, srv_config: dict) -> bytes:
+        """Build KMS response bytes from request data and server config. Dispatches by protocol version (V4/V5/V6)."""
         version = kmsBase.GenericRequestHeader(data)['versionMajor']
         currentDate = time.strftime("%a %b %d %H:%M:%S %Y")
 

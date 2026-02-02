@@ -171,6 +171,3 @@ class handler(pykms_RpcBase.rpcBase):
                 loggersrv.debug("RPC Bind Request Bytes: \n%s\n" % justify(deco(binascii.b2a_hex(enco(str(request), 'latin-1')), 'utf-8')))
                                 
                 return request
-
-        def parseResponse(self):
-                return response

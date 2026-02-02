@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
+"""RPC request handler: parse KMS request and generate RPC response."""
+from __future__ import annotations
 
 import binascii
 import logging
+from typing import Any
 
 import pykms_Base
 import pykms_RpcBase
@@ -12,8 +15,11 @@ from pykms_Format import justify, byterize, enco, deco, pretty_printer
 
 loggersrv = logging.getLogger('logsrv')
 
+
 class handler(pykms_RpcBase.rpcBase):
-        def parseRequest(self):
+        """Server-side handler: parses MS-RPC request and generates KMS response."""
+
+        def parseRequest(self) -> Any:
                 request = MSRPCRequestHeader(self.data)
                 pretty_printer(num_text = 14, where = "srv")
                 request = byterize(request)
@@ -65,6 +71,3 @@ class handler(pykms_RpcBase.rpcBase):
                 loggersrv.debug("RPC Message Request Bytes: \n%s\n" % justify(deco(binascii.b2a_hex(enco(str(request), 'latin-1')), 'utf-8')))
                 
                 return request
-
-        def parseResponse(self):
-                return response

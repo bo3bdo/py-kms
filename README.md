@@ -102,6 +102,46 @@ To keep images updated automatically, see [watchtower](https://github.com/contai
 
 ---
 
+## Development
+
+**Setup (from repo root):**
+```bash
+python -m venv .venv
+.venv\Scripts\activate   # Windows
+# source .venv/bin/activate  # Unix
+pip install -r requirements.txt
+pip install pytest
+```
+
+**Run tests (from repo root or from `py-kms/`):**
+```bash
+# From py-kms/ (folder that contains pykms_Server.py):
+python -m pytest tests/ -v
+
+# From repo root:
+python -m pytest py-kms/tests/ -v
+```
+
+**Lint / format (optional):**
+```bash
+pip install black ruff
+black py-kms/
+ruff check py-kms/
+```
+
+**Modes (run from `py-kms/` or use `py-kms/pykms_Server.py` from repo root):**
+- **Normal server:** `python pykms_Server.py [IP] [PORT]` — runs in foreground; Ctrl+C stops.
+- **Etrigan (daemon):** `python pykms_Server.py etrigan start` — runs in background; use `etrigan stop` / `etrigan status`.
+- **GUI:** Run from a TTY or use `etrigan start -g` for GUI with daemon.
+
+**Environment variables (CLI overrides):**  
+`PYKMS_IP`, `PYKMS_PORT`, `PYKMS_LOGLEVEL`, `PYKMS_HWID`, `PYKMS_DATABASE` (SQLite path when `-s` is used).
+
+**Docker env vars (see `docker/docker-py3-kms/`):**  
+`IP`, `PORT`, `EPID`, `LCID`, `CLIENT_COUNT`, `ACTIVATION_INTERVAL`, `RENEWAL_INTERVAL`, `SQLITE`, `HWID`, `LOGLEVEL`, `LOGFILE`, `LOGSIZE`.
+
+---
+
 ## More
 
 - **Wiki:** [py-kms Wiki](https://github.com/SystemRage/py-kms/wiki) — activation notes and GVLK keys.

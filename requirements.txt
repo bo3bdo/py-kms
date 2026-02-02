@@ -1,0 +1,2 @@
+# Optional: local time in verbose output (otherwise UTC)
+tzlocal>=2.0.0

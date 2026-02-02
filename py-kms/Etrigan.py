@@ -393,12 +393,21 @@ class Etrigan(object):
                 if pid is None:
                         self.view(self.logdaemon.info, self.emit_message, "The daemon process is not running.", to_exit = True)
                 else:
-                        try: 
-                                with open("/proc/%d/status" %pid, 'r') as pf:
-                                        pass
+                        try:
+                                if sys.platform == 'win32':
+                                        os.kill(pid, 0)
+                                else:
+                                        with open("/proc/%d/status" % pid, 'r') as pf:
+                                                pass
                                 self.view(self.logdaemon.info, self.emit_message, "The daemon process is running.", to_exit = True)
+                        except (ProcessLookupError, OSError) as e:
+                                if getattr(e, 'errno', None) == errno.ESRCH:
+                                        self.view(self.logdaemon.info, self.emit_message, "The daemon process is not running.", to_exit = True)
+                                else:
+                                        msg = "There is not a process with the PIDFILE '%s': %s" % (self.pidfile, str(e))
+                                        self.view(self.logdaemon.error, self.emit_error, msg)
                         except Exception as e:
-                                msg = "There is not a process with the PIDFILE '%s': %s" %(self.pidfile, str(e))
+                                msg = "There is not a process with the PIDFILE '%s': %s" % (self.pidfile, str(e))
                                 self.view(self.logdaemon.error, self.emit_error, msg)
 
         def flatten(self, alistoflists, ltypes = Sequence):

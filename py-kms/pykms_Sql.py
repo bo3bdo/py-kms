@@ -15,8 +15,9 @@ from pykms_Format import pretty_printer
 
 loggersrv = logging.getLogger('logsrv')
 
-def sql_initialize():
-	dbName = 'clients.db'
+def sql_initialize(db_path=None):
+	"""Initialize SQLite DB for client requests. db_path: path to DB file (default 'clients.db')."""
+	dbName = db_path if db_path is not None else 'clients.db'
 	if not os.path.isfile(dbName):
 		# Initialize the database.
 		con = None
@@ -86,8 +87,7 @@ def sql_update_epid(dbName, kmsRequest, response):
 			if data[6]:
 				response["kmsEpid"] = data[6].encode('utf-16le')
 			else:
-				cur.execute("UPDATE clients SET kmsEpid=? WHERE clientMachineId=?;", (str(response["kmsEpid"].decode('utf-16le')),
-												      cmid))
+				cur.execute("UPDATE clients SET kmsEpid=? WHERE clientMachineId=?;", (str(response["kmsEpid"].decode('utf-16le')), cmid))
 		except sqlite3.Error as e:
                         pretty_printer(log_obj = loggersrv.error, to_exit = True,
                                        put_text = "{reverse}{red}{bold}%s. Exiting...{end}" %str(e))

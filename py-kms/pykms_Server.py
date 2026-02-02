@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""py-kms server: TCP KMS server, options parsing, and daemon (Etrigan) integration."""
+from __future__ import annotations
 
 import binascii
+import json
 import re
 import sys
 import socket
@@ -9,7 +12,6 @@ import uuid
 import logging
 import os
 import threading
-import pickle
 import socketserver
 import queue as Queue
 import selectors
@@ -22,9 +24,9 @@ from pykms_Misc import KmsParser, KmsParserException, KmsParserHelp
 from pykms_Misc import kms_parser_get, kms_parser_check_optionals, kms_parser_check_positionals
 from pykms_Format import enco, deco, pretty_printer
 from Etrigan import Etrigan, Etrigan_parser, Etrigan_check, Etrigan_job
+from pykms_version import __version__ as _version
 
-
-srv_version             = "py-kms_2020-07-01"
+srv_version = "py-kms_" + _version
 __license__             = "The Unlicense"
 __author__              = u"Matteo ℱan <SystemRage@protonmail.com>"
 __url__                 = "https://github.com/SystemRage/py-kms"
@@ -33,10 +35,11 @@ srv_config = {}
 
 ##---------------------------------------------------------------------------------------------------------------------------------------------------------
 class KeyServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+        """TCP server for KMS; supports IPv4/IPv6 and custom select loop (pykms_serve)."""
         daemon_threads = True
         allow_reuse_address = True
 
-        def __init__(self, server_address, RequestHandlerClass):
+        def __init__(self, server_address: tuple[str, int], RequestHandlerClass: type) -> None:
                 # Use IPv4 when binding to an IPv4 address (e.g. 0.0.0.0, 192.168.1.100) to avoid getaddrinfo failed on Windows
                 try:
                         socket.inet_pton(socket.AF_INET, server_address[0])
@@ -166,6 +169,8 @@ for server OSes and Office >=5', 'def' : None, 'des' : "clientcount"},
                      'def' : 1440 * 7, 'des' : "renewal"},
         'sql' : {'help' : 'Use this option to store request information from unique clients in an SQLite database. Desactivated by default.',
                  'def' : False, 'des' : "sqlite"},
+        'sqldb' : {'help' : 'Path to the SQLite database file when --sqlite is used. Default is "clients.db" in the current directory.',
+                   'def' : 'clients.db', 'des' : "sqlitedb"},
         'hwid' : {'help' : 'Use this option to specify a HWID. The HWID must be an 16-character string of hex characters. \
 The default is \"364F463A8863D35F\" or type \"RANDOM\" to auto generate the HWID.', 'def' : "364F463A8863D35F", 'des' : "hwid"},
         'time0' : {'help' : 'Maximum inactivity time (in seconds) after which the connection with the client is closed. If \"None\" (default) serve forever.',
@@ -181,10 +186,26 @@ Use \"STDOUTOFF\" to disable stdout messages. Use \"FILEOFF\" if you not want to
         'lsize' : {'help' : 'Use this flag to set a maximum size (in MB) to the output log file. Desactivated by default.', 'def' : 0, 'des': "logsize"},
         }
 
+def _env_default(key: str, fallback: str | int) -> str | int:
+        """Default from PYKMS_* env var; CLI overrides."""
+        val = os.environ.get(key)
+        if val is None or val == "":
+                return fallback
+        if isinstance(fallback, int):
+                try:
+                        return int(val)
+                except ValueError:
+                        return fallback
+        return val
+
 def server_options():
         server_parser = KmsParser(description = srv_description, epilog = 'version: ' + srv_version, add_help = False)
-        server_parser.add_argument("ip", nargs = "?", action = "store", default = srv_options['ip']['def'], help = srv_options['ip']['help'], type = str)
-        server_parser.add_argument("port", nargs = "?", action = "store", default = srv_options['port']['def'], help = srv_options['port']['help'], type = int)
+        server_parser.add_argument("ip", nargs = "?", action = "store",
+                                   default = _env_default("PYKMS_IP", srv_options['ip']['def']),
+                                   help = srv_options['ip']['help'] + ' (env: PYKMS_IP)', type = str)
+        server_parser.add_argument("port", nargs = "?", action = "store",
+                                   default = _env_default("PYKMS_PORT", srv_options['port']['def']),
+                                   help = srv_options['port']['help'] + ' (env: PYKMS_PORT)', type = int)
         server_parser.add_argument("-e", "--epid", action = "store", dest = srv_options['epid']['des'], default = srv_options['epid']['def'],
                                    help = srv_options['epid']['help'], type = str)
         server_parser.add_argument("-l", "--lcid", action = "store", dest = srv_options['lcid']['des'], default = srv_options['lcid']['def'],
@@ -197,14 +218,19 @@ def server_options():
                                    default = srv_options['renewal']['def'], help = srv_options['renewal']['help'], type = int)
         server_parser.add_argument("-s", "--sqlite", action = "store_true", dest = srv_options['sql']['des'],
                                    default = srv_options['sql']['def'], help = srv_options['sql']['help'])
-        server_parser.add_argument("-w", "--hwid", action = "store", dest = srv_options['hwid']['des'], default = srv_options['hwid']['def'],
-                                   help = srv_options['hwid']['help'], type = str)
+        server_parser.add_argument("-D", "--database", action = "store", dest = srv_options['sqldb']['des'],
+                                   default = os.environ.get('PYKMS_DATABASE', srv_options['sqldb']['def']),
+                                   help = srv_options['sqldb']['help'] + ' (env: PYKMS_DATABASE)', type = str)
+        server_parser.add_argument("-w", "--hwid", action = "store", dest = srv_options['hwid']['des'],
+                                   default = _env_default("PYKMS_HWID", srv_options['hwid']['def']),
+                                   help = srv_options['hwid']['help'] + ' (env: PYKMS_HWID)', type = str)
         server_parser.add_argument("-t0", "--timeout-idle", action = "store", dest = srv_options['time0']['des'], default = srv_options['time0']['def'],
                                    help = srv_options['time0']['help'], type = str)
         server_parser.add_argument("-y", "--async-msg", action = "store_true", dest = srv_options['asyncmsg']['des'],
                                    default = srv_options['asyncmsg']['def'], help = srv_options['asyncmsg']['help'])
         server_parser.add_argument("-V", "--loglevel", action = "store", dest = srv_options['llevel']['des'], choices = srv_options['llevel']['choi'],
-                                   default = srv_options['llevel']['def'], help = srv_options['llevel']['help'], type = str)
+                                   default = _env_default("PYKMS_LOGLEVEL", srv_options['llevel']['def']),
+                                   help = srv_options['llevel']['help'] + ' (env: PYKMS_LOGLEVEL)', type = str)
         server_parser.add_argument("-F", "--logfile", nargs = "+", action = "store", dest = srv_options['lfile']['des'],
                                    default = srv_options['lfile']['def'], help = srv_options['lfile']['help'], type = str)
         server_parser.add_argument("-S", "--logsize", action = "store", dest = srv_options['lsize']['des'], default = srv_options['lsize']['def'],
@@ -290,9 +316,25 @@ class Etrigan(Etrigan):
                 if not self.mute:
                         pretty_printer(put_text = "{reverse}{red}{bold}%s{end}" %message, to_exit = True)
 
+def _config_to_json_serializable(config):
+        """Return a dict of config suitable for JSON (bytes -> hex string)."""
+        out = {}
+        for k, v in config.items():
+                if k == 'operation':
+                        continue
+                if isinstance(v, bytes):
+                        out[k] = binascii.hexlify(v).decode('ascii')
+                else:
+                        try:
+                                json.dumps(v)
+                                out[k] = v
+                        except (TypeError, ValueError):
+                                pass
+        return out
+
 def server_daemon():
         if 'etrigan' in srv_config.values():
-                path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pykms_config.pickle')
+                path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pykms_config.json')
 
                 if srv_config['operation'] in ['stop', 'restart', 'status'] and len(sys.argv[1:]) > 2:
                         pretty_printer(put_text = "{reverse}{red}{bold}too much arguments with etrigan '%s'. Exiting...{end}" %srv_config['operation'],
@@ -306,13 +348,18 @@ def server_daemon():
                         pass
                 else:
                         if srv_config['operation'] == 'start':
-                                with open(path, 'wb') as file:
-                                        pickle.dump(srv_config, file, protocol = pickle.HIGHEST_PROTOCOL)
+                                with open(path, 'w', encoding='utf-8') as file:
+                                        json.dump(_config_to_json_serializable(srv_config), file, indent=2)
                         elif srv_config['operation'] in ['stop', 'status', 'restart']:
-                                with open(path, 'rb') as file:
-                                        old_srv_config = pickle.load(file)
-                                old_srv_config = {x: old_srv_config[x] for x in old_srv_config if x not in ['operation']}
-                                srv_config.update(old_srv_config)
+                                with open(path, 'r', encoding='utf-8') as file:
+                                        old_srv_config = json.load(file)
+                                for k, v in old_srv_config.items():
+                                        if k == 'operation':
+                                                continue
+                                        if k == 'hwid' and isinstance(v, str) and len(v) == 16 and all(c in '0123456789abcdefABCDEF' for c in v):
+                                                srv_config[k] = binascii.unhexlify(v)
+                                        else:
+                                                srv_config[k] = v
 
                 serverdaemon = Etrigan(srv_config['etriganpid'],
                                        logfile = srv_config['etriganlog'], loglevel = srv_config['etriganlev'],
