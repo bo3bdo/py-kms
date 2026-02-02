@@ -66,7 +66,8 @@ class KeyServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
                                 conn, client_address = self.socket.accept()
 
-                        except select.error as e:
+                        except OSError as e:
+                                # select.error was removed in Python 3.4+; OSError is the replacement
                                 if self.__shutdown_request:
                                         return
                                 continue
@@ -370,8 +371,8 @@ def server_check():
                                 
         # Check sqlite.
         try:
-                import sqlite3            
-        except:
+                import sqlite3
+        except ImportError:
                 pretty_printer(log_obj = loggersrv.warning,
                                put_text = "{reverse}{yellow}{bold}Module 'sqlite3' is not installed, database support disabled.{end}")
                 srv_config['dbSupport'] = False
@@ -540,5 +541,5 @@ if __name__ == "__main__":
         else:
                 try:
                         server_main_no_terminal()
-                except:
+                except Exception:
                         server_main_terminal()
