@@ -410,17 +410,17 @@ class Etrigan(object):
                         if alistoflists: yield alistoflists.pop(0)
 
         def exclude(self, func):
-                from inspect import getargspec
-                args = getargspec(func)
-                if callable(func):
-                        try:
-                                args[0].pop(0)
-                        except IndexError:
-                                pass
-                        return args
-                else:
+                import inspect
+                if not callable(func):
                         self.view(self.logdaemon.error, self.emit_error, "Not a function.")
                         return
+                sig = inspect.signature(func)
+                params = list(sig.parameters.keys())
+                try:
+                        params.pop(0)
+                except IndexError:
+                        pass
+                return (params,)
 
         def execute(self, some_functions):
                 returned = None
