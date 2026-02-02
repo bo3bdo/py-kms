@@ -693,7 +693,7 @@ class KmsGui(tk.Tk):
                         self.srv_toggle_all(on_start = True)
                         # run thread for interrupting server when an error happens.
                         self.srv_eject_thread = threading.Thread(target = self.srv_eject, name = "Thread-SrvEjt")
-                        self.srv_eject_thread.setDaemon(True)
+                        self.srv_eject_thread.daemon = True
                         self.srv_eject_thread.start()
 
                 elif self.runbtnsrv['text'] == 'STOP\nSERVER':
@@ -773,7 +773,7 @@ class KmsGui(tk.Tk):
                 self.clt_actions_start()
                 # run thread for disabling interrupt server and client, when client running.
                 self.clt_eject_thread = threading.Thread(target = self.clt_eject, name = "Thread-CltEjt")
-                self.clt_eject_thread.setDaemon(True)
+                self.clt_eject_thread.daemon = True
                 self.clt_eject_thread.start()
 
                 for widget in self.storewidgets_clt + [self.runbtnsrv, self.runbtnclt]:
@@ -797,7 +797,7 @@ class KmsGui(tk.Tk):
 
                 # run client (in a thread).
                 self.clientthread = client_thread(name = "Thread-Clt")
-                self.clientthread.setDaemon(True)
+                self.clientthread.daemon = True
                 self.clientthread.with_gui = True
                 self.clientthread.start()
 

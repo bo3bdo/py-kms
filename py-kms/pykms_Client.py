@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+import struct
 import binascii
 import datetime
 import random
@@ -26,8 +27,9 @@ from pykms_Misc import check_setup
 from pykms_Misc import KmsParser, KmsParserException, KmsParserHelp
 from pykms_Misc import kms_parser_get, kms_parser_check_optionals, kms_parser_check_positionals
 from pykms_Format import justify, byterize, enco, deco, pretty_printer
+from pykms_version import __version__ as _version
 
-clt_version             = "py-kms_2020-07-01"
+clt_version = "py-kms_" + _version
 __license__             = "The Unlicense"
 __author__              = u"Matteo ℱan <SystemRage@protonmail.com>"
 __url__                 = "https://github.com/SystemRage/py-kms"
@@ -52,9 +54,11 @@ loggerclt = logging.getLogger('logclt')
 clt_options = {
         'ip' : {'help' : 'The IP address or hostname of the KMS server.', 'def' : "0.0.0.0", 'des' : "ip"},
         'port' : {'help' : 'The port the KMS service is listening on. The default is \"1688\".', 'def' : 1688, 'des' : "port"},
-        'mode' : {'help' : 'Use this flag to manually specify a Microsoft product for testing the server. The default is \"Windows81\"',
+        'mode' : {'help' : 'Select Windows or Office mode.',
                   'def' : "Windows8.1", 'des' : "mode",
-                  'choi' : ["WindowsVista","Windows7","Windows8","Windows8.1","Windows10","Office2010","Office2013","Office2016","Office2019"]},
+                  'choi' : ["WindowsVista", "Windows7", "Windows8", "Windows8.1", "Windows10",
+                            "Windows11", "WindowsServer2022", "WindowsServer2024", "WindowsServer2025",
+                            "Office2010", "Office2013", "Office2016", "Office2019", "Office2021", "Office2024"]},
         'cmid' : {'help' : 'Use this flag to manually specify a CMID to use. If no CMID is specified, a random CMID will be generated.',
                   'def' : None, 'des' : "cmid"},
         'name' : {'help' : 'Use this flag to manually specify an ASCII machine name to use. If no machine name is specified a random one \
@@ -148,7 +152,7 @@ def client_update():
         for appitem in appitems:
                 kmsitems = appitem['KmsItems']
                 for kmsitem in kmsitems:                                
-                        name = re.sub('\(.*\)', '', kmsitem['DisplayName']).replace('2015', '').replace(' ', '')
+                        name = re.sub(r'\(.*\)', '', kmsitem['DisplayName']).replace('2015', '').replace(' ', '')
                         if name == clt_config['mode']:
                                 skuitems = kmsitem['SkuItems']
                                 # Select 'Enterprise' for Windows or 'Professional Plus' for Office.
@@ -164,6 +168,29 @@ def client_update():
                                                 clt_config['KMSClientAppID'] = appitem['Id']
                                                 clt_config['KMSClientKMSCountedID'] = kmsitem['Id']
                                                 break
+                                break
+
+        # Fallback if mode not found in DB (e.g. new modes): use protocol 6 and first Windows/Office entry with Enterprise/ProfessionalPlus
+        if 'KMSProtocolMajorVersion' not in clt_config:
+                for appitem in appitems:
+                        if not (appitem['DisplayName'].startswith('Windows') or appitem['DisplayName'].startswith('Office')):
+                                continue
+                        for kmsitem in appitem['KmsItems']:
+                                if not kmsitem.get('SkuItems'):
+                                        continue
+                                sku = next((s for s in kmsitem['SkuItems'] if 'Enterprise' in s['DisplayName'] or 'Professional Plus' in s['DisplayName']), None)
+                                if sku:
+                                        clt_config['KMSClientSkuID'] = sku['Id']
+                                        clt_config['RequiredClientCount'] = int(kmsitem.get('NCountPolicy', 25))
+                                        clt_config['KMSProtocolMajorVersion'] = int(float(kmsitem.get('DefaultKmsProtocol', 6)))
+                                        clt_config['KMSProtocolMinorVersion'] = 0
+                                        clt_config['KMSClientLicenseStatus'] = 2
+                                        clt_config['KMSClientAppID'] = appitem['Id']
+                                        clt_config['KMSClientKMSCountedID'] = kmsitem['Id']
+                                        loggerclt.warning("Mode '%s' not in database; using protocol 6 fallback." % clt_config['mode'])
+                                        break
+                        if 'KMSProtocolMajorVersion' in clt_config:
+                                break
         
 def client_create():
         loggerclt.info("Connecting to %s on port %d..." % (clt_config['ip'], clt_config['port']))
@@ -216,6 +243,20 @@ def client_create():
                 except socket.error as e:
                         pretty_printer(log_obj = loggerclt.error, to_exit = True, where = "clt",
                                        put_text = "{reverse}{red}{bold}While receiving: %s{end}" %str(e))
+
+                if not response or len(response) < 10:
+                        pretty_printer(log_obj = loggerclt.error, to_exit = True, where = "clt",
+                                       put_text = "{reverse}{red}{bold}Empty or incomplete response from server (check server logs).{end}")
+                # RPC response: frag_len at offset 8 (2 bytes, little-endian) gives total packet size
+                frag_len = struct.unpack('<H', response[8:10])[0]
+                if frag_len < 24 or frag_len > 65535:
+                        pretty_printer(log_obj = loggerclt.error, to_exit = True, where = "clt",
+                                       put_text = "{reverse}{red}{bold}Invalid response length from server (frag_len=%s).{end}" % frag_len)
+                while len(response) < frag_len:
+                        chunk = s.recv(min(4096, frag_len - len(response)))
+                        if not chunk:
+                                break
+                        response = response + chunk
 
                 loggerclt.debug("Response: \n%s\n" % justify(deco(binascii.b2a_hex(response), 'latin-1')))
                 parsed = MSRPCRespHeader(response)
@@ -271,7 +312,7 @@ def createKmsRequestBase():
         requestDict['clientMachineId'] = UUID(uuid.UUID(clt_config['cmid']).bytes_le if (clt_config['cmid'] is not None) else uuid.uuid4().bytes_le)
         requestDict['previousClientMachineId'] = '\0' * 16 # I'm pretty sure this is supposed to be a null UUID.
         requestDict['requiredClientCount'] = clt_config['RequiredClientCount']
-        requestDict['requestTime'] = dt_to_filetime(datetime.datetime.utcnow())
+        requestDict['requestTime'] = dt_to_filetime(datetime.datetime.now(datetime.timezone.utc))
         requestDict['machineName'] = (clt_config['machine'] if (clt_config['machine'] is not None) else
                                       ''.join(random.choice(string.ascii_letters + string.digits) for i in range(random.randint(2,63)))).encode('utf-16le')
         requestDict['mnPad'] = '\0'.encode('utf-16le') * (63 - len(requestDict['machineName'].decode('utf-16le')))

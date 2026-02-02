@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
+"""Base RPC handler: packet types and populate/parseRequest interface."""
+from __future__ import annotations
+
 
 class rpcBase:
+        """Base for RPC bind and request handlers. Subclass and override parseRequest, generateResponse."""
         packetType = {
                 'request':              0,
                 'ping':                 1,

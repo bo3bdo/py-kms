@@ -385,7 +385,7 @@ class Animation(object):
                         if self.cancelid is None:
                                 if not self.loop:
                                         self.btnani_thread = threading.Thread(target = self.deanimate, name = "Thread-BtnAni")
-                                        self.btnani_thread.setDaemon(True)
+                                        self.btnani_thread.daemon = True
                                         self.btnani_thread.start()
                                 self.cancelid = self.master.after(self.frames[0].delay, self.animate)
 
@@ -426,7 +426,7 @@ def custom_pages(window, side):
                                 wait_thread = threading.Thread(target = animationwait,
                                                                args = (master, button, btn_animation, lbl_animation),
                                                                name = "Thread-WaitAni")
-                                wait_thread.setDaemon(True)
+                                wait_thread.daemon = True
                                 wait_thread.start()
                                 lbl_animation.stop()
                                 btn_animation.start()

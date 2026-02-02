@@ -96,6 +96,16 @@
         <WinBuild BuildNumber="16299" DisplayName="Windows 10 1709" PlatformId="3612" UsesNDR64="true"/>
         <WinBuild BuildNumber="17134" DisplayName="Windows 10 1803" PlatformId="3612" UsesNDR64="true"/>
         <WinBuild BuildNumber="17763" DisplayName="Windows 10 1809 / Server 2019" UseForEpid="true" PlatformId="3612" MayBeServer="true" UsesNDR64="true" WinBuildIndex="5" MinDate="02/10/2018"/>
+		<WinBuild BuildNumber="19041" DisplayName="Windows 10 2004 / Windows 10 20H1" PlatformId="3612" UsesNDR64="true"/>
+		<WinBuild BuildNumber="19042" DisplayName="Windows 10 20H2" PlatformId="3612" UsesNDR64="true"/>
+		<WinBuild BuildNumber="19043" DisplayName="Windows 10 21H1" PlatformId="3612" UsesNDR64="true"/>
+		<WinBuild BuildNumber="19044" DisplayName="Windows 10 21H2" PlatformId="3612" UsesNDR64="true"/>
+		<WinBuild BuildNumber="19045" DisplayName="Windows 10 22H2" PlatformId="3612" UsesNDR64="true"/>
+		<WinBuild BuildNumber="22000" DisplayName="Windows 11 21H2" PlatformId="3612" UsesNDR64="true"/>
+		<WinBuild BuildNumber="22621" DisplayName="Windows 11 22H2" PlatformId="3612" UsesNDR64="true"/>
+		<WinBuild BuildNumber="22631" DisplayName="Windows 11 23H2" PlatformId="3612" UsesNDR64="true"/>
+		<WinBuild BuildNumber="26100" DisplayName="Windows 11 24H2 / Server 2025" PlatformId="3612" UseForEpid="true" MayBeServer="true" UsesNDR64="true" WinBuildIndex="6" MinDate="01/10/2024"/>
+		<WinBuild BuildNumber="20348" DisplayName="Windows Server 2022" PlatformId="3612" UseForEpid="true" MayBeServer="true" UsesNDR64="true" WinBuildIndex="5" MinDate="18/08/2021"/>
     </WinBuilds>
 
 	<CsvlkItems>
@@ -554,11 +564,60 @@
 			<Activate KmsItem="00000000-0000-0000-0000-000000000000" />
 		</CsvlkItem>
 
+		<CsvlkItem DisplayName="Windows Server 2022" VlmcsdIndex="0" GroupId="206" MinKeyId="817000000" MaxKeyId="836999999" IniFileName="Windows" EPid="06401-00206-817-038742-03-1033-17763.0000-2802018" Id="83d49986-addc-4e16-b253-23bf5a02d4d4" InvalidWinBuild="[0,1,2]">
+			<Activate KmsItem="d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a" />
+			<Activate KmsItem="f6a7b8c9-d0e1-4f5a-3b4c-5d6e7f8a9b0c" />
+			<Activate KmsItem="e5f6a7b8-c9d0-4e5f-2a3b-4c5d6e7f8a9b" />
+			<Activate KmsItem="58e2134f-8e11-4d17-9cb2-91069c151148" />
+			<Activate KmsItem="7fde5219-fbfa-484a-82c9-34d1ad53e856" />
+			<Activate KmsItem="3c40b358-5948-45af-923b-53d21fcc7e79" />
+			<Activate KmsItem="cb8fc780-2c05-495a-9710-85afffc904d7" />
+			<Activate KmsItem="33e156e4-b76f-4a52-9f91-f641dd95ac48" />
+			<Activate KmsItem="8fe53387-3087-4447-8985-f75132215ac9" />
+			<Activate KmsItem="8a21fdf3-cbc5-44eb-83f3-fe284e6680a7" />
+			<Activate KmsItem="0fc6ccaf-ff0e-4fae-9d08-4370785bf7ed" />
+			<Activate KmsItem="ca87f5b6-cd46-40c0-b06d-8ecd57a4373f" />
+			<Activate KmsItem="b2ca2689-a9a8-42d7-938d-cf8e9f201958" />
+			<Activate KmsItem="8665cb71-468c-4aa3-a337-cb9bc9d5eaac" />
+			<Activate KmsItem="8456efd3-0c04-4089-8740-5b7238535a65" />
+			<Activate KmsItem="6e9fc069-257d-4bc4-b4a7-750514d32743" />
+			<Activate KmsItem="969fe3c0-a3ec-491a-9f25-423605deb365" />
+			<Activate KmsItem="212a64dc-43b1-4d3d-a30c-2fc69d2095c6" />
+			<Activate KmsItem="d27cd636-1962-44e9-8b4f-27b6c23efb85" />
+			<Activate KmsItem="8449b1fb-f0ea-497a-99ab-66ca96e9a0f5" />
+			<Activate KmsItem="11b15659-e603-4cf1-9c1f-f0ec01b81888" />
+		</CsvlkItem>
+
+		<CsvlkItem DisplayName="Office 2021" VlmcsdIndex="6" GroupId="206" MinKeyId="865000000" MaxKeyId="884999999" IniFileName="Office2021" EPid="06401-00206-865-006105-03-1033-17763.0000-2802018" Id="47f3b983-7c53-4d45-abc6-bcd91e2dd90a" InvalidWinBuild="[0,1,2]">
+			<Activate KmsItem="ae2ee509-1b34-41c0-acb7-6d4650168915" />
+		</CsvlkItem>
+
+		<CsvlkItem DisplayName="Office 2024" VlmcsdIndex="7" GroupId="206" MinKeyId="900000000" MaxKeyId="919999999" IniFileName="Office2024" EPid="06401-00206-900-000001-03-1033-26100.0000-2802018" Id="f3d89bbf-c0ec-47ce-a8fa-e5a5f97e447f" InvalidWinBuild="[0,1,2,3,4,5]">
+			<Activate KmsItem="f3d89bbf-c0ec-47ce-a8fa-e5a5f97e447f" />
+		</CsvlkItem>
 	</CsvlkItems>
 
 	<AppItems>
 
 		<AppItem DisplayName="Windows" VlmcsdIndex="0" Id="55c92734-d682-4d71-983e-d6ec3f16059f" MinActiveClients="50">
+
+			<KmsItem DisplayName="Windows Server 2022" Id="d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a" DefaultKmsProtocol="6.0" NCountPolicy="5">
+				<SkuItem DisplayName="Windows Server 2022 Enterprise" Id="a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d" Gvlk="WX4NM-KYWYW-QJJR4-XV3QB-6VM33" />
+				<SkuItem DisplayName="Windows Server 2022 Datacenter" Id="b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e" Gvlk="WX4NM-KYWYW-QJJR4-XV3QB-6VM33" />
+				<SkuItem DisplayName="Windows Server 2022 Standard" Id="c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f" Gvlk="VDYBN-27WPP-V4HQT-9VMD4-VMK7H" />
+			</KmsItem>
+
+			<KmsItem DisplayName="Windows Server 2024" Id="f6a7b8c9-d0e1-4f5a-3b4c-5d6e7f8a9b0c" DefaultKmsProtocol="6.0" NCountPolicy="5">
+				<SkuItem DisplayName="Windows Server 2024 Enterprise" Id="a8b9c0d1-e2f3-4a4b-6c5d-7e8f9a0b1c2d" Gvlk="WX4NM-KYWYW-QJJR4-XV3QB-6VM33" />
+				<SkuItem DisplayName="Windows Server 2024 Datacenter" Id="b9c0d1e2-f3a4-4b5c-7d6e-8f9a0b1c2d3e" Gvlk="WX4NM-KYWYW-QJJR4-XV3QB-6VM33" />
+				<SkuItem DisplayName="Windows Server 2024 Standard" Id="c0d1e2f3-a4b5-4c6d-8e7f-9a0b1c2d3e4f" Gvlk="VDYBN-27WPP-V4HQT-9VMD4-VMK7H" />
+			</KmsItem>
+
+			<KmsItem DisplayName="Windows Server 2025" Id="e5f6a7b8-c9d0-4e5f-2a3b-4c5d6e7f8a9b" DefaultKmsProtocol="6.0" NCountPolicy="5">
+				<SkuItem DisplayName="Windows Server 2025 Enterprise" Id="d5e6f7a8-b9c0-4d5e-3b4c-5d6e7f8a9b0c" Gvlk="WX4NM-KYWYW-QJJR4-XV3QB-6VM33" />
+				<SkuItem DisplayName="Windows Server 2025 Datacenter" Id="e6f7a8b9-c0d1-4e6f-4c5d-6e7f8a9b0c1d" Gvlk="WX4NM-KYWYW-QJJR4-XV3QB-6VM33" />
+				<SkuItem DisplayName="Windows Server 2025 Standard" Id="f7a8b9c0-d1e2-4f7a-5d6e-7f8a9b0c1d2e" Gvlk="VDYBN-27WPP-V4HQT-9VMD4-VMK7H" />
+			</KmsItem>
 
 			<KmsItem DisplayName="Windows Server 2019" Id="8449b1fb-f0ea-497a-99ab-66ca96e9a0f5" DefaultKmsProtocol="6.0" NCountPolicy="5">
 				<SkuItem DisplayName="Windows Server 2019 ARM64" Id="8de8eb62-bbe0-40ac-ac17-f75595071ea3" Gvlk="GRFBW-QNDC4-6QBHG-CCK3B-2PR88" />
@@ -588,6 +647,10 @@
 			<KmsItem DisplayName="Windows 10 2016 (Volume)" Id="969fe3c0-a3ec-491a-9f25-423605deb365" DefaultKmsProtocol="6.0" NCountPolicy="25">
 				<SkuItem DisplayName="Windows 10 Enterprise 2016 LTSB" Id="2d5a5a60-3040-48bf-beb0-fcd770c20ce0" Gvlk="DCPHK-NFMTC-H88MJ-PFHPY-QJ4BJ" />
 				<SkuItem DisplayName="Windows 10 Enterprise 2016 LTSB N" Id="9f776d83-7156-45b2-8a5c-359b9c9f22a3" Gvlk="QFFDN-GRT3P-VKWWX-X7T3R-8B639" />
+			</KmsItem>
+
+			<KmsItem DisplayName="Windows 11" Id="b7e69c3a-5f2d-4e1b-9a8c-7d6e5f4a3b2c" DefaultKmsProtocol="6.0" NCountPolicy="25">
+				<SkuItem DisplayName="Windows 11 Enterprise" Id="c8f7a6b5-4e3d-2c1b-0a9f-8e7d6c5b4a3f" Gvlk="NPPR9-FWDCX-D2C8J-H872K-2YT43" />
 			</KmsItem>
 
 			<KmsItem DisplayName="Windows 10 (Retail)" Id="e1c51358-fe3e-4203-a4a2-3b6b20c9734e" IsRetail="true" DefaultKmsProtocol="6.0" NCountPolicy="25">
@@ -986,6 +1049,29 @@
 
 		</AppItem>
 
+		<AppItem DisplayName="Office 2021 (Microsoft 365 Apps)" VlmcsdIndex="6" MinActiveClients="10" Id="47f3b983-7c53-4d45-abc6-bcd91e2dd90a">
+			<KmsItem DisplayName="Office 2021" Id="ae2ee509-1b34-41c0-acb7-6d4650168915" CanMapToDefaultCsvlk="false" DefaultKmsProtocol="6.0" NCountPolicy="5">
+				<SkuItem DisplayName="Office Professional Plus 2021" Id="a7b8c9d0-e1f2-4a3b-9c8d-7e6f5a4b3c2d" Gvlk="FXYTK-NJJ8C-GB6DW-3DYQT-6F7TH" />
+				<SkuItem DisplayName="Office LTSC Professional Plus 2021" Id="f3f7163b-987e-4eeb-8803-5f9c4d2937b5" Gvlk="FXYTK-NJJ8C-GB6DW-3DYQT-6F7TH" />
+				<SkuItem DisplayName="Office LTSC Standard 2021" Id="8f94c06e-0ee3-4a5f-9398-9973cce69634" Gvlk="KDX7X-BNVR8-TXXGX-4Q7Y8-78VT3" />
+				<SkuItem DisplayName="Office Project Professional 2021" Id="0c3a1659-30e4-4add-9c5b-3962e9b47be2" Gvlk="FTNWT-C6WBT-8HMGF-K9PRX-QV9H8" />
+				<SkuItem DisplayName="Office Project Standard 2021" Id="3f4af1f5-7f1d-4a70-9c9d-d63c6e3f93f2" Gvlk="J2JDC-NJCYY-9RGQ4-YXWMH-T3D8T" />
+				<SkuItem DisplayName="Office Visio Professional 2021" Id="9d3b1f15-3b30-4f6b-8c85-23f31c8f5e86" Gvlk="KNH8D-FGHT4-T8RK3-CTDYJ-K2HT4" />
+				<SkuItem DisplayName="Office Visio Standard 2021" Id="b2e6e1e9-71f7-4f5a-b91f-7f7d3a6c8e3f" Gvlk="MJVNY-BYWPY-CWV6J-2RKRT-4M8QG" />
+			</KmsItem>
+		</AppItem>
+
+		<AppItem DisplayName="Office 2024 (LTSC)" VlmcsdIndex="7" MinActiveClients="10" Id="f3d89bbf-c0ec-47ce-a8fa-e5a5f97e447f">
+			<KmsItem DisplayName="Office 2024" Id="f3d89bbf-c0ec-47ce-a8fa-e5a5f97e447f" CanMapToDefaultCsvlk="false" DefaultKmsProtocol="6.0" NCountPolicy="5">
+				<SkuItem DisplayName="Office Professional Plus 2024" Id="b8c9d0e1-f2a3-4b4c-0d9e-8f7a6b5c4d3e" Gvlk="XJ2XN-FW8RK-P4HMP-DKDBV-GCVGB" />
+				<SkuItem DisplayName="Office LTSC Professional Plus 2024" Id="f3d89bbf-c0ec-47ce-a8fa-e5a5f97e447f" Gvlk="XJ2XN-FW8RK-P4HMP-DKDBV-GCVGB" />
+				<SkuItem DisplayName="Office LTSC Standard 2024" Id="c2f04adf-a5de-40dd-9f99-9778f3f7d0b7" Gvlk="V28N4-JG22K-W66Y8-QG3FV-9FCVY" />
+				<SkuItem DisplayName="Office Project Professional 2024" Id="e4b8e5f3-3c4d-4f5a-9b8c-7e8f9a0b1c2d" Gvlk="FQQ23-4WDG7-T4K4C-W7K4P-P4Q7H" />
+				<SkuItem DisplayName="Office Project Standard 2024" Id="d5c9f6e4-4d5e-5f6b-0c9d-8f9a0b1c2d3e" Gvlk="PD3PC-RHNGV-FXJ29-8JK7D-RJRJK" />
+				<SkuItem DisplayName="Office Visio Professional 2024" Id="c7b8a9f2-2b3c-4d4e-8a7b-6d5e4f3g2h1i" Gvlk="B7TN8-FJ8V3-7QYCP-HQPM7-92BQH" />
+				<SkuItem DisplayName="Office Visio Standard 2024" Id="b6a7e8d1-1a2b-3c3d-7e6a-5c4d3e2f1g0h" Gvlk="JMMVY-XFNMQ-K2QFK-2KVJW-W9B7D" />
+			</KmsItem>
+		</AppItem>
 	</AppItems>
 
 </KmsData>

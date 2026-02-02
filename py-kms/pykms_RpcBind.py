@@ -116,9 +116,10 @@ class handler(pykms_RpcBase.rpcBase):
                 preparedResponses[uuidTime] = CtxItemResult(3, 3, uuidEmpty, 0)
 
                 response['ctx_items'] = ''
+                defaultResult = preparedResponses[uuidNDR32]
                 for i in range (0, bind['ctx_num']):
                         ts_uuid = bind['ctx_items'][i].ts()
-                        resp = preparedResponses[ts_uuid]
+                        resp = preparedResponses.get(ts_uuid, defaultResult)
                         response['ctx_items'] += str(resp)
 
                 pretty_printer(num_text = 4, where = "srv")
@@ -170,6 +171,3 @@ class handler(pykms_RpcBase.rpcBase):
                 loggersrv.debug("RPC Bind Request Bytes: \n%s\n" % justify(deco(binascii.b2a_hex(enco(str(request), 'latin-1')), 'utf-8')))
                                 
                 return request
-
-        def parseResponse(self):
-                return response

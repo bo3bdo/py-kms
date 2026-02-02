@@ -9,7 +9,7 @@ import time
 import signal
 import logging
 import argparse
-from collections import Sequence
+from collections.abc import Sequence
 
 __version__             = "0.1"
 __license__             = "MIT License"
@@ -393,12 +393,21 @@ class Etrigan(object):
                 if pid is None:
                         self.view(self.logdaemon.info, self.emit_message, "The daemon process is not running.", to_exit = True)
                 else:
-                        try: 
-                                with open("/proc/%d/status" %pid, 'r') as pf:
-                                        pass
+                        try:
+                                if sys.platform == 'win32':
+                                        os.kill(pid, 0)
+                                else:
+                                        with open("/proc/%d/status" % pid, 'r') as pf:
+                                                pass
                                 self.view(self.logdaemon.info, self.emit_message, "The daemon process is running.", to_exit = True)
+                        except (ProcessLookupError, OSError) as e:
+                                if getattr(e, 'errno', None) == errno.ESRCH:
+                                        self.view(self.logdaemon.info, self.emit_message, "The daemon process is not running.", to_exit = True)
+                                else:
+                                        msg = "There is not a process with the PIDFILE '%s': %s" % (self.pidfile, str(e))
+                                        self.view(self.logdaemon.error, self.emit_error, msg)
                         except Exception as e:
-                                msg = "There is not a process with the PIDFILE '%s': %s" %(self.pidfile, str(e))
+                                msg = "There is not a process with the PIDFILE '%s': %s" % (self.pidfile, str(e))
                                 self.view(self.logdaemon.error, self.emit_error, msg)
 
         def flatten(self, alistoflists, ltypes = Sequence):
@@ -410,17 +419,17 @@ class Etrigan(object):
                         if alistoflists: yield alistoflists.pop(0)
 
         def exclude(self, func):
-                from inspect import getargspec
-                args = getargspec(func)
-                if callable(func):
-                        try:
-                                args[0].pop(0)
-                        except IndexError:
-                                pass
-                        return args
-                else:
+                import inspect
+                if not callable(func):
                         self.view(self.logdaemon.error, self.emit_error, "Not a function.")
                         return
+                sig = inspect.signature(func)
+                params = list(sig.parameters.keys())
+                try:
+                        params.pop(0)
+                except IndexError:
+                        pass
+                return (params,)
 
         def execute(self, some_functions):
                 returned = None

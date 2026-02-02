@@ -26,7 +26,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """Tools to convert between Python datetime instances and Microsoft times.
 """
-from datetime import datetime, timedelta, tzinfo
+from datetime import datetime, timedelta, tzinfo, timezone
 from calendar import timegm
 
 
@@ -92,8 +92,8 @@ def filetime_to_dt(ft):
         """
         # Get seconds and remainder in terms of Unix epoch
         (s, ns100) = divmod(ft - EPOCH_AS_FILETIME, HUNDREDS_OF_NANOSECONDS)
-        # Convert to datetime object
-        dt = datetime.utcfromtimestamp(s)
+        # Convert to datetime object (timezone.utc since 3.2; utcfromtimestamp deprecated in 3.12)
+        dt = datetime.fromtimestamp(s, tz=timezone.utc).replace(tzinfo=None)
         # Add remainder in as microseconds. Python 3.2 requires an integer
         dt = dt.replace(microsecond=(ns100 // 10))
         return dt
