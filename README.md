@@ -5,6 +5,8 @@
 [![License](https://img.shields.io/badge/license-unlicense-lightgray.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/)
 
+**→ [Setup, installation & run guide (step-by-step)](SETUP.md)**
+
 ---
 
 ## History
