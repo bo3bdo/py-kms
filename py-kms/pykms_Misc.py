@@ -411,7 +411,8 @@ def kms_parser_check_positionals(config, parse_method, arguments = None, msg = '
                 if arguments:
                         config.update(vars(parse_method(arguments)))
                 else:
-                        config.update(vars(parse_method()))
+                        # Pass [] so the parser uses defaults instead of sys.argv[1:] (e.g. for "etrigan start -g").
+                        config.update(vars(parse_method([])))
         except KmsParserException as e:
                 e = str(e)
                 if e.startswith('argument'):

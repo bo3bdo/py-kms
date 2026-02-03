@@ -541,8 +541,8 @@ def Etrigan_parser(parser = None):
         parser.add_argument("operation", action = "store", choices = ["start", "stop", "restart", "status", "reload"],
                             help = "Select an operation for daemon.", type = str)
         parser.add_argument("--etrigan-pid",
-                            action = "store", dest = "etriganpid", default = "/tmp/etrigan.pid",
-                            help = "Choose a pidfile path. Default is \"/tmp/etrigan.pid\".", type = str) #'/var/run/etrigan.pid'
+                            action = "store", dest = "etriganpid", default = os.path.join(path, "etrigan.pid"),
+                            help = "Choose a pidfile path. Default is script-dir/etrigan.pid (cross-platform).", type = str)
         parser.add_argument("--etrigan-log",
                             action = "store", dest = "etriganlog", default = os.path.join(path, "etrigan.log"),
                             help = "Use this option to choose an output log file; for not logging don't select it. Default is \"etrigan.log\".", type = str)

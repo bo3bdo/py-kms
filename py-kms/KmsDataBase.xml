@@ -615,8 +615,8 @@
 
 			<KmsItem DisplayName="Windows Server 2025" Id="e5f6a7b8-c9d0-4e5f-2a3b-4c5d6e7f8a9b" DefaultKmsProtocol="6.0" NCountPolicy="5">
 				<SkuItem DisplayName="Windows Server 2025 Enterprise" Id="d5e6f7a8-b9c0-4d5e-3b4c-5d6e7f8a9b0c" Gvlk="WX4NM-KYWYW-QJJR4-XV3QB-6VM33" />
-				<SkuItem DisplayName="Windows Server 2025 Datacenter" Id="e6f7a8b9-c0d1-4e6f-4c5d-6e7f8a9b0c1d" Gvlk="WX4NM-KYWYW-QJJR4-XV3QB-6VM33" />
-				<SkuItem DisplayName="Windows Server 2025 Standard" Id="f7a8b9c0-d1e2-4f7a-5d6e-7f8a9b0c1d2e" Gvlk="VDYBN-27WPP-V4HQT-9VMD4-VMK7H" />
+				<SkuItem DisplayName="Windows Server 2025 Datacenter" Id="e6f7a8b9-c0d1-4e6f-4c5d-6e7f8a9b0c1d" Gvlk="D764K-2NDRG-47T6Q-P8T8W-YP6DF" />
+				<SkuItem DisplayName="Windows Server 2025 Standard" Id="f7a8b9c0-d1e2-4f7a-5d6e-7f8a9b0c1d2e" Gvlk="TVRH6-WHNXV-R9WG3-9XRFY-MY832" />
 			</KmsItem>
 
 			<KmsItem DisplayName="Windows Server 2019" Id="8449b1fb-f0ea-497a-99ab-66ca96e9a0f5" DefaultKmsProtocol="6.0" NCountPolicy="5">

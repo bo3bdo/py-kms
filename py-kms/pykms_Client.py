@@ -52,7 +52,7 @@ loggerclt = logging.getLogger('logclt')
 
 # 'help' string - 'default' value - 'dest' string.
 clt_options = {
-        'ip' : {'help' : 'The IP address or hostname of the KMS server.', 'def' : "0.0.0.0", 'des' : "ip"},
+        'ip' : {'help' : 'The IP address or hostname of the KMS server.', 'def' : "127.0.0.1", 'des' : "ip"},
         'port' : {'help' : 'The port the KMS service is listening on. The default is \"1688\".', 'def' : 1688, 'des' : "port"},
         'mode' : {'help' : 'Select Windows or Office mode.',
                   'def' : "Windows8.1", 'des' : "mode",

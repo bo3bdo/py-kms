@@ -1,3 +1,16 @@
+### _Windows Server 2025_
+<table width="650" cellspacing="0" cellpadding="0">
+    <colgroup>
+       <col span="1" width="300">
+       <col span="1" width="350">
+    </colgroup>
+    <thead><tr><th>Product</th><th>GVLK</th></tr></thead>
+    <tbody>
+         <tr><td>Windows Server 2025 Datacenter</td><td>D764K-2NDRG-47T6Q-P8T8W-YP6DF</td></tr>
+         <tr><td>Windows Server 2025 Standard</td><td>TVRH6-WHNXV-R9WG3-9XRFY-MY832</td></tr>
+    </tbody>
+</table>
+
 ### _Windows Server 2019_
 <table width="650" cellspacing="0" cellpadding="0">
     <colgroup>

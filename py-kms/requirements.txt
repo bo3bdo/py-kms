@@ -1,0 +1,10 @@
+# py-kms dependencies
+# Required packages for full functionality
+
+# Timezone support (optional but recommended for accurate request timestamps)
+tzlocal>=4.0
+pytz>=2023.3
+
+# Testing (optional, only needed for running test suite)
+pytest>=7.0
+pytest-cov>=4.0
