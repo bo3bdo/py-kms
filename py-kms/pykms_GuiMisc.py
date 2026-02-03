@@ -282,53 +282,68 @@ class TextDoubleScroll(tk.Frame):
 
 ##-----------------------------------------------------------------------------------------------------------------------------------------------------------
 def custom_background(window):
-        # first level canvas.
-        allwidgets = window.grid_slaves(0,0)[0].grid_slaves() + window.grid_slaves(0,0)[0].place_slaves()
-        widgets_alphalow = [ widget for widget in allwidgets if widget.winfo_class() == 'Canvas']
-        widgets_alphahigh = []
-        # sub-level canvas.
-        for side in ["Srv", "Clt"]:
-                widgets_alphahigh.append(window.pagewidgets[side]["BtnWin"])
-                for position in ["Left", "Right"]:
-                        widgets_alphahigh.append(window.pagewidgets[side]["AniWin"][position])
-                for pagename in window.pagewidgets[side]["PageWin"].keys():
-                        widgets_alphalow.append(window.pagewidgets[side]["PageWin"][pagename])
-        
         try:
-                from PIL import Image, ImageTk
+                # first level canvas.
+                slaves_0_0 = window.grid_slaves(0, 0)
+                if not slaves_0_0:
+                        raise IndexError("no widgets at grid 0,0")
+                allwidgets = slaves_0_0[0].grid_slaves() + slaves_0_0[0].place_slaves()
+                widgets_alphalow = [ widget for widget in allwidgets if widget.winfo_class() == 'Canvas']
+                widgets_alphahigh = []
+                # sub-level canvas.
+                for side in ["Srv", "Clt"]:
+                        widgets_alphahigh.append(window.pagewidgets[side]["BtnWin"])
+                        for position in ["Left", "Right"]:
+                                widgets_alphahigh.append(window.pagewidgets[side]["AniWin"][position])
+                        for pagename in window.pagewidgets[side]["PageWin"].keys():
+                                widgets_alphalow.append(window.pagewidgets[side]["PageWin"][pagename])
 
-                # Open Image.
-                img = Image.open(os.path.dirname(os.path.abspath( __file__ )) + "/graphics/pykms_Keys.gif")
-                img = img.convert('RGBA')
-                # Resize image.
-                img.resize((window.winfo_width(), window.winfo_height()), Image.ANTIALIAS)
-                # Put semi-transparent background chunks.
-                window.backcrops_alphalow, window.backcrops_alphahigh = ([] for _ in range(2))
+                try:
+                        from PIL import Image, ImageTk
+                        # Pillow 10+ deprecated ANTIALIAS; use LANCZOS if available.
+                        try:
+                                resize_filter = Image.LANCZOS
+                        except AttributeError:
+                                resize_filter = getattr(Image, 'ANTIALIAS', Image.LINEAR)
 
-                def cutter(master, image, widgets, crops, alpha):
-                        for widget in widgets:
-                                x, y, w, h = master.get_position(widget)
-                                cropped = image.crop((x, y, x + w, y + h))
-                                cropped.putalpha(alpha)
-                                crops.append(ImageTk.PhotoImage(cropped))
-                        # Not in same loop to prevent reference garbage.
-                        for crop, widget in zip(crops, widgets):
-                                widget.create_image(1, 1, image = crop, anchor = 'nw')
+                        graphics_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "graphics")
+                        img_path = os.path.join(graphics_dir, "pykms_Keys.gif")
+                        img = Image.open(img_path)
+                        img = img.convert('RGBA')
+                        img = img.resize((max(1, window.winfo_width()), max(1, window.winfo_height())), resize_filter)
+                        window.backcrops_alphalow, window.backcrops_alphahigh = ([] for _ in range(2))
 
-                cutter(window, img, widgets_alphalow, window.backcrops_alphalow, 36)
-                cutter(window, img, widgets_alphahigh, window.backcrops_alphahigh, 96)
-                        
-                # Put semi-transparent background overall.
-                img.putalpha(128)
-                window.backimg = ImageTk.PhotoImage(img)
-                window.masterwin.create_image(1, 1, image = window.backimg, anchor = 'nw')
-                
-        except ImportError:
-                for widget in widgets_alphalow + widgets_alphahigh:
-                        widget.configure(background = window.customcolors['lavender'])
+                        def cutter(master, image, widgets, crops, alpha):
+                                for widget in widgets:
+                                        x, y, w, h = master.get_position(widget)
+                                        cropped = image.crop((x, y, x + w, y + h))
+                                        cropped.putalpha(alpha)
+                                        crops.append(ImageTk.PhotoImage(cropped))
+                                for crop, widget in zip(crops, widgets):
+                                        widget.create_image(1, 1, image = crop, anchor = 'nw')
+
+                        cutter(window, img, widgets_alphalow, window.backcrops_alphalow, 36)
+                        cutter(window, img, widgets_alphahigh, window.backcrops_alphahigh, 96)
+                        img.putalpha(128)
+                        window.backimg = ImageTk.PhotoImage(img)
+                        window.masterwin.create_image(1, 1, image = window.backimg, anchor = 'nw')
+                except (ImportError, OSError, IndexError, Exception):
+                        for widget in widgets_alphalow + widgets_alphahigh:
+                                try:
+                                        widget.configure(background = window.customcolors['lavender'])
+                                except Exception:
+                                        pass
+        except Exception:
+                try:
+                        window.masterwin.configure(background = window.customcolors['lavender'])
+                except Exception:
+                        pass
 
         # Hide client.
-        window.clt_on_show(force_remove = True)
+        try:
+                window.clt_on_show(force_remove = True)
+        except Exception:
+                pass
         # Show Gui.
         window.deiconify()
 
@@ -404,9 +419,9 @@ def custom_pages(window, side):
         for position in buttons.keys():
                 buttons[position].config(anchor = "center",
                                          font = window.btnwinfont,
-                                         background = window.customcolors['white'],
-                                         activebackground = window.customcolors['white'],
-                                         borderwidth = 2)
+                                         background = window.customcolors.get('card', window.customcolors['white']),
+                                         activebackground = window.customcolors.get('card', window.customcolors['white']),
+                                         borderwidth = 0)
 
                 try:
                         anibtn = Animation(os.path.dirname(os.path.abspath( __file__ )) + "/graphics/pykms_Keyhole_%s.gif" %position,
@@ -437,10 +452,10 @@ def custom_pages(window, side):
                         buttons[position].bind("<Enter>", anilbl.start)
                         buttons[position].bind("<Leave>", anilbl.stop)
 
-                except ImportError:
+                except (ImportError, OSError, FileNotFoundError, Exception):
                         buttons[position].config(activebackground = window.customcolors['blue'],
                                                  foreground = window.customcolors['blue'])
-                        labels[position].config(background = window.customcolors['lavender'])
+                        labels[position].config(background = window.customcolors.get('card', window.customcolors['lavender']))
 
                         if position == "Left":
                                 buttons[position].config(text = '<<')

@@ -334,6 +334,11 @@ def _config_to_json_serializable(config):
 
 def server_daemon():
         if 'etrigan' in srv_config.values():
+                # Windows has no os.fork(); run GUI in foreground instead of daemon when "etrigan start -g".
+                if os.name == 'nt' and srv_config.get('operation') == 'start' and srv_config.get('gui'):
+                        server_with_gui()
+                        return
+
                 path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pykms_config.json')
 
                 if srv_config['operation'] in ['stop', 'restart', 'status'] and len(sys.argv[1:]) > 2:

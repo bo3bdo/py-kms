@@ -43,14 +43,18 @@ sudo pip3 install tzlocal
 
 ## Quick Start
 
+**Run all commands from the `py-kms/` folder** (the one that contains `pykms_Server.py`).
+
 **Server (default: all interfaces, port 1688):**
 ```bash
+cd py-kms
 python3 pykms_Server.py
 # Or: python3 pykms_Server.py 0.0.0.0 1688
 ```
 
 **Client (test only):**
 ```bash
+cd py-kms
 python3 pykms_Client.py 127.0.0.1 1688 -m Windows11 -V INFO
 ```
 
@@ -78,8 +82,8 @@ python3 pykms_Client.py 127.0.0.1 1688 -m Windows11 -V INFO
 **Other:**
 - `-t0 10` — idle timeout (seconds).
 - `-y` — asynchronous (pretty) logging.
-- **Etrigan (daemon):** `python3 pykms_Server.py etrigan start` / `etrigan stop`.
-- **GUI with Etrigan:** `python3 pykms_Server.py etrigan start -g`.
+- **Etrigan (daemon):** From `py-kms/`: `python pykms_Server.py etrigan start` / `etrigan stop`.
+- **GUI with Etrigan:** From `py-kms/`: `python pykms_Server.py etrigan start -g`.
 
 ---
 
@@ -129,10 +133,10 @@ black py-kms/
 ruff check py-kms/
 ```
 
-**Modes (run from `py-kms/` or use `py-kms/pykms_Server.py` from repo root):**
+**Modes (run from the `py-kms/` folder):**
 - **Normal server:** `python pykms_Server.py [IP] [PORT]` — runs in foreground; Ctrl+C stops.
 - **Etrigan (daemon):** `python pykms_Server.py etrigan start` — runs in background; use `etrigan stop` / `etrigan status`.
-- **GUI:** Run from a TTY or use `etrigan start -g` for GUI with daemon.
+- **GUI:** `python pykms_Server.py etrigan start -g` — opens the GUI (must be run from `py-kms/`).
 
 **Environment variables (CLI overrides):**  
 `PYKMS_IP`, `PYKMS_PORT`, `PYKMS_LOGLEVEL`, `PYKMS_HWID`, `PYKMS_DATABASE` (SQLite path when `-s` is used).
