@@ -18,6 +18,7 @@ import selectors
 from time import monotonic as time
 import pykms_RpcBind, pykms_RpcRequest
 from pykms_RpcBase import rpcBase
+from pykms_Connect import has_dualstack_ipv6, create_server_sock
 from pykms_Dcerpc import MSRPCHeader
 from pykms_Misc import check_setup, check_lcid
 from pykms_Misc import KmsParser, KmsParserException, KmsParserHelp
@@ -35,12 +36,40 @@ srv_config = {}
 
 ##---------------------------------------------------------------------------------------------------------------------------------------------------------
 class KeyServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-        """TCP server for KMS; supports IPv4/IPv6 and custom select loop (pykms_serve)."""
+        """TCP server for KMS; supports IPv4/IPv6, dual-stack (::), and custom select loop (pykms_serve)."""
         daemon_threads = True
         allow_reuse_address = True
 
+        def server_bind(self):
+                """Bind socket; use dual-stack IPv6 when listening on :: so IPv4 and IPv6 share one socket."""
+                host, port = self.server_address[0], self.server_address[1]
+                if host in ("::", "::0") and has_dualstack_ipv6():
+                        try:
+                                self.socket = create_server_sock(
+                                        (host, port),
+                                        family=socket.AF_INET6,
+                                        dualstack_ipv6=True
+                                )
+                                self.address_family = socket.AF_INET6
+                                self._already_listening = True
+                                return
+                        except (ValueError, socket.error, OSError):
+                                pass
+                self._already_listening = False
+                try:
+                        socket.inet_pton(socket.AF_INET, host)
+                        self.address_family = socket.AF_INET
+                except OSError:
+                        self.address_family = socket.AF_INET6
+                socketserver.TCPServer.server_bind(self)
+
+        def server_activate(self):
+                if getattr(self, "_already_listening", False):
+                        return
+                socketserver.TCPServer.server_activate(self)
+
         def __init__(self, server_address: tuple[str, int], RequestHandlerClass: type) -> None:
-                # Use IPv4 when binding to an IPv4 address (e.g. 0.0.0.0, 192.168.1.100) to avoid getaddrinfo failed on Windows
+                self._already_listening = False
                 try:
                         socket.inet_pton(socket.AF_INET, server_address[0])
                         self.address_family = socket.AF_INET
@@ -184,6 +213,8 @@ Type \"STDOUT\" to view log info on stdout. Type \"FILESTDOUT\" to combine previ
 Use \"STDOUTOFF\" to disable stdout messages. Use \"FILEOFF\" if you not want to create logfile.',
                    'def' : os.path.join('.', 'pykms_logserver.log'), 'des' : "logfile"},
         'lsize' : {'help' : 'Use this flag to set a maximum size (in MB) to the output log file. Desactivated by default.', 'def' : 0, 'des': "logsize"},
+        'webui' : {'help' : 'Port for the simple Web UI (status page). Default is 8080. Use 0 to disable.',
+                   'def' : 8080, 'des' : "webuiport"},
         }
 
 def _env_default(key: str, fallback: str | int) -> str | int:
@@ -235,6 +266,8 @@ def server_options():
                                    default = srv_options['lfile']['def'], help = srv_options['lfile']['help'], type = str)
         server_parser.add_argument("-S", "--logsize", action = "store", dest = srv_options['lsize']['des'], default = srv_options['lsize']['def'],
                                    help = srv_options['lsize']['help'], type = float)
+        server_parser.add_argument("-W", "--webui-port", action = "store", dest = srv_options['webui']['des'], default = srv_options['webui']['def'],
+                                   help = srv_options['webui']['help'], type = int)
 
         server_parser.add_argument("-h", "--help", action = "help", help = "show this help message and exit")
 
@@ -293,9 +326,10 @@ def server_options():
                         #               python3 pykms_Server.py 1.2.3.4 1234
                         #               python3 pykms_Server.py 1.2.3.4 1234 --pykms_optionals
                         #               python3 pykms_Server.py --pykms_optionals
+                        #               python3 pykms_Server.py 0.0.0.0 1688 -W 9090
 
                         kms_parser_check_optionals(userarg, pykmssrv_zeroarg, pykmssrv_onearg, exclude_opt_len = ['-F', '--logfile'])
-                        kms_parser_check_positionals(srv_config, server_parser.parse_args)
+                        kms_parser_check_positionals(srv_config, server_parser.parse_args, arguments=userarg)
 
         except KmsParserException as e:
                 pretty_printer(put_text = "{reverse}{red}{bold}%s. Exiting...{end}" %str(e), to_exit = True)
@@ -457,6 +491,18 @@ def server_create():
         server.timeout = srv_config['timeoutidle']
         loggersrv.info("TCP server listening at %s on port %d." % (srv_config['ip'], srv_config['port']))
         loggersrv.info("HWID: %s" % deco(binascii.b2a_hex(srv_config['hwid']), 'utf-8').upper())
+        webui_port = int(srv_config.get('webuiport', 0) or 0)
+        if webui_port > 0:
+                try:
+                        from pykms_WebUI import start_webui_thread
+                        start_webui_thread(webui_port, srv_config)
+                        loggersrv.info("Web UI: http://127.0.0.1:%d/" % webui_port)
+                except Exception as ex:
+                        import traceback
+                        loggersrv.warning("Web UI failed to start on port %d: %s" % (webui_port, ex))
+                        loggersrv.debug(traceback.format_exc())
+                        pretty_printer(log_obj=loggersrv.warning,
+                                      put_text="{yellow}Web UI: start failed (port %d). Check log or use -W 0 to disable.{end}" % webui_port)
         return server
 
 def server_terminate(generic_srv, exit_server = False, exit_thread = False):

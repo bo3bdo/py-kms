@@ -84,6 +84,8 @@ python3 pykms_Client.py 127.0.0.1 1688 -m Windows11 -V INFO
 **Other:**
 - `-t0 10` — idle timeout (seconds).
 - `-y` — asynchronous (pretty) logging.
+- **Web UI:** `-W 8080` — simple status page at `http://127.0.0.1:8080/` (version, KMS address, activation hints).
+- **Dual-stack IPv6:** Use `::` as IP to listen on IPv4 and IPv6 with one socket (when supported).
 - **Etrigan (daemon):** From `py-kms/`: `python pykms_Server.py etrigan start` / `etrigan stop`.
 - **GUI with Etrigan:** From `py-kms/`: `python pykms_Server.py etrigan start -g`.
 
